@@ -12,7 +12,7 @@ import numpy as np
 
 
 def validate_generator(gen):
-    images, labels = next(gen)
+    images, labels = gen.__getitem__(0)
     for x, y in zip(images, labels):
         _, ax = plt.subplots(1, 2)
         ax[0].imshow(x, cmap='gray')
@@ -54,7 +54,7 @@ def predict(show=True):
 ############################################################################################
 
 # Macroparameters
-BATCH_SIZE = 32
+BATCH_SIZE = 16
 EPOCHS = 1
 IMG_SIZE = (256, 256)
 learning_rate = 1e-3
@@ -82,5 +82,5 @@ result_path = "C:/Users/Karol/Desktop/unet_result"
 wbce_loss = lambda y_true, y_pred: weighted_bce(y_true, y_pred, weight0=weight_zeros, weight1=weight_ones)
 my_metrics = [f1, IoU]
 
-# train(validate_input=True)
-predict()
+train(validate_input=False)
+# predict()

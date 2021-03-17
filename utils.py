@@ -91,25 +91,31 @@ class MyGenerator(Sequence):
         return x, y
 
 
-def MyAugGenerator(batch_size, train_path, image_folder, mask_folder, aug_dict, target_size, seed = 101):
-    image_datagen = ImageDataGenerator(**aug_dict, preprocessing_function=normalize)
-    mask_datagen = ImageDataGenerator(**aug_dict, preprocessing_function=normalize)
-    image_generator = image_datagen.flow_from_directory(
-        train_path,
-        classes = [image_folder],
-        class_mode = None,
-        color_mode = 'grayscale',
-        target_size = target_size,
-        batch_size = batch_size,
-        seed = seed)
-    mask_generator = mask_datagen.flow_from_directory(
-        train_path,
-        classes = [mask_folder],
-        class_mode = None,
-        color_mode = 'grayscale',
-        target_size = target_size,
-        batch_size = batch_size,
-        seed = seed)
-    train_generator = zip(image_generator, mask_generator)
-    for (img, mask) in train_generator:
-        yield (img, mask)
+class MyAugGenerator(Sequence):
+    def __init__(self, batch_size, train_path, image_folder, mask_folder, aug_dict, target_size, seed=101):
+        image_datagen = ImageDataGenerator(**aug_dict, preprocessing_function=normalize)
+        mask_datagen = ImageDataGenerator(**aug_dict, preprocessing_function=normalize)
+        self.image_generator = image_datagen.flow_from_directory(
+            train_path,
+            classes = [image_folder],
+            class_mode = None,
+            color_mode = 'grayscale',
+            target_size = target_size,
+            batch_size = batch_size,
+            seed = seed)
+        self.mask_generator = mask_datagen.flow_from_directory(
+            train_path,
+            classes = [mask_folder],
+            class_mode = None,
+            color_mode = 'grayscale',
+            target_size = target_size,
+            batch_size = batch_size,
+            seed = seed)
+
+    def __len__(self):
+        return self.image_generator.__len__()
+
+    def __getitem__(self, idx):
+        x = self.image_generator.__getitem__(idx)
+        y = self.mask_generator.__getitem__(idx)
+        return x, y
